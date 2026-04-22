@@ -7,6 +7,7 @@ RUN npm run build
 
 FROM nginx:alpine AS runner
 COPY --from=builder /app/dist /usr/share/nginx/html
-# Template is processed at container startup using BACKEND_URL env var
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 EXPOSE 80
+# envsubst with explicit variable list so nginx vars ($uri, $host, etc.) are untouched
+CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
