@@ -1,0 +1,45 @@
+import * as PaymentRepository from '../repositories/payment.repository.js';
+import * as ClientRepository  from '../repositories/client.repository.js';
+import { AppError } from '../utils/AppError.js';
+
+export const getPayments = ({ client_id, from, to } = {}) =>
+  PaymentRepository.findAll({
+    client_id: client_id ? parseInt(client_id) : undefined,
+    from: from || undefined,
+    to:   to   || undefined,
+  });
+
+export const getPaymentById = async (id) => {
+  const payment = await PaymentRepository.findById(id);
+  if (!payment) throw new AppError('Pago no encontrado', 404);
+  return payment;
+};
+
+export const createPayment = async (data) => {
+  const client = await ClientRepository.findById(data.client_id);
+  if (!client || !client.is_active) throw new AppError('Cliente no encontrado', 404);
+
+  return PaymentRepository.create({
+    client_id:      data.client_id,
+    amount:         parseFloat(data.amount),
+    payment_date:   new Date(data.payment_date),
+    payment_method: data.payment_method,
+    notes:          data.notes?.trim() || null,
+  });
+};
+
+export const updatePayment = async (id, data) => {
+  await getPaymentById(id);
+
+  return PaymentRepository.update(id, {
+    amount:         parseFloat(data.amount),
+    payment_date:   new Date(data.payment_date),
+    payment_method: data.payment_method,
+    notes:          data.notes?.trim() || null,
+  });
+};
+
+export const deletePayment = async (id) => {
+  await getPaymentById(id);
+  return PaymentRepository.remove(id);
+};

@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// =========================
+// GENERATOR & DATASOURCE
+// =========================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================
+// ENUMS
+// =========================
+
+enum client_type {
+  MAYORISTA
+  VIABANA
+}
+
+enum payment_method {
+  EFECTIVO
+  TRANSFERENCIA
+  OTRO
+}
+
+// =========================
+// MODELS
+// =========================
+
+model users {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+}
+
+model clients {
+  id         Int          @id @default(autoincrement())
+  name       String
+  type       client_type
+  phone      String?
+  address    String?
+  is_active  Boolean      @default(true)
+  created_at DateTime     @default(now())
+
+  payments   payments[]
+}
+
+model payments {
+  id             Int             @id @default(autoincrement())
+  client_id      Int
+  amount         Decimal         @db.Decimal(12, 2)
+  payment_date   DateTime        @db.Date
+  payment_method payment_method
+  notes          String?
+  created_at     DateTime        @default(now())
+
+  client         clients         @relation(fields: [client_id], references: [id], onDelete: Cascade)
+
+  @@index([client_id])
+  @@index([payment_date])
+  @@index([client_id, payment_date])
+}
