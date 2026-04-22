@@ -37,6 +37,15 @@ router.get(
   "/",
   [
     query("client_id").optional().isInt({ min: 1 }).toInt(),
+    query("client_name")
+      .optional({ checkFalsy: true })
+      .trim()
+      .isLength({ min: 2, max: 100 })
+      .withMessage("El nombre del cliente debe tener entre 2 y 100 caracteres"),
+    query("amount")
+      .optional({ checkFalsy: true })
+      .isFloat({ min: 0.01 })
+      .withMessage("El monto debe ser mayor a 0"),
     query("from")
       .optional()
       .matches(/^\d{4}-\d{2}-\d{2}$/),

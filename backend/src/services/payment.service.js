@@ -3,9 +3,17 @@ import * as ClientRepository from "../repositories/client.repository.js";
 import { AppError } from "../utils/AppError.js";
 import { toPaymentDate } from "../utils/paymentDate.js";
 
-export const getPayments = ({ client_id, from, to } = {}) =>
+export const getPayments = ({
+  client_id,
+  client_name,
+  amount,
+  from,
+  to,
+} = {}) =>
   PaymentRepository.findAll({
     client_id: client_id ? parseInt(client_id) : undefined,
+    client_name: client_name?.trim() || undefined,
+    amount: amount ? parseFloat(amount) : undefined,
     from: from || undefined,
     to: to || undefined,
   });

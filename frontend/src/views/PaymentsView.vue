@@ -13,7 +13,18 @@
 
     <!-- Filters -->
     <BaseCard>
-      <div class="flex flex-wrap gap-3 items-end">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3 items-end"
+      >
+        <div>
+          <label class="block text-xs font-semibold text-brand-text mb-1.5"
+            >Buscar cliente</label
+          >
+          <BaseInput
+            v-model="filters.client_name"
+            placeholder="Nombre del cliente"
+          />
+        </div>
         <div class="flex-1 min-w-[160px]">
           <label class="block text-xs font-semibold text-brand-text mb-1.5"
             >Cliente</label
@@ -28,19 +39,31 @@
             </option>
           </select>
         </div>
-        <div class="flex-1 min-w-[140px]">
+        <div>
+          <label class="block text-xs font-semibold text-brand-text mb-1.5"
+            >Monto</label
+          >
+          <BaseInput
+            v-model="filters.amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            placeholder="0.00"
+          />
+        </div>
+        <div>
           <label class="block text-xs font-semibold text-brand-text mb-1.5"
             >Desde</label
           >
           <BaseInput v-model="filters.from" type="date" />
         </div>
-        <div class="flex-1 min-w-[140px]">
+        <div>
           <label class="block text-xs font-semibold text-brand-text mb-1.5"
             >Hasta</label
           >
           <BaseInput v-model="filters.to" type="date" />
         </div>
-        <div class="flex gap-2 flex-shrink-0">
+        <div class="flex gap-2 flex-shrink-0 sm:col-span-2 xl:col-span-5">
           <BaseButton @click="applyFilters">Filtrar</BaseButton>
           <BaseButton variant="ghost" @click="clearFilters">Limpiar</BaseButton>
         </div>
@@ -222,11 +245,19 @@ const showToast = (message, type = "success") => {
 };
 
 // ── Filtros ────────────────────────────────────────────
-const filters = reactive({ client_id: "", from: "", to: "" });
+const filters = reactive({
+  client_name: "",
+  client_id: "",
+  amount: "",
+  from: "",
+  to: "",
+});
 
 const applyFilters = () => paymentStore.fetchPayments({ ...filters });
 const clearFilters = () => {
+  filters.client_name = "";
   filters.client_id = "";
+  filters.amount = "";
   filters.from = "";
   filters.to = "";
   paymentStore.fetchPayments();

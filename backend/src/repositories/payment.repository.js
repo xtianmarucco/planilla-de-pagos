@@ -3,10 +3,19 @@ import { toPaymentDate } from "../utils/paymentDate.js";
 
 const clientSelect = { select: { id: true, name: true, type: true } };
 
-export const findAll = ({ client_id, from, to } = {}) => {
+export const findAll = ({ client_id, client_name, amount, from, to } = {}) => {
   const where = {};
 
   if (client_id) where.client_id = client_id;
+  if (amount) where.amount = amount;
+  if (client_name) {
+    where.client = {
+      name: {
+        contains: client_name,
+        mode: "insensitive",
+      },
+    };
+  }
 
   if (from || to) {
     where.payment_date = {};

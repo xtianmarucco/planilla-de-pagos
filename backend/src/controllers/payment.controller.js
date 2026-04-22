@@ -3,8 +3,17 @@ import { success } from "../utils/response.js";
 
 export const getAll = async (req, res, next) => {
   try {
-    const { client_id, from, to } = req.query;
-    success(res, await PaymentService.getPayments({ client_id, from, to }));
+    const { client_id, client_name, amount, from, to } = req.query;
+    success(
+      res,
+      await PaymentService.getPayments({
+        client_id,
+        client_name,
+        amount,
+        from,
+        to,
+      }),
+    );
   } catch (err) {
     next(err);
   }
