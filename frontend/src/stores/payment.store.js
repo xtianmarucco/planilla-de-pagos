@@ -1,12 +1,12 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import * as PaymentService from '@/services/payment.service.js';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import * as PaymentService from "@/services/payment.service.js";
 
-export const usePaymentStore = defineStore('payment', () => {
+export const usePaymentStore = defineStore("payment", () => {
   const payments = ref([]);
-  const loading  = ref(false);
-  const saving   = ref(false);
-  const error    = ref(null);
+  const loading = ref(false);
+  const saving = ref(false);
+  const error = ref(null);
 
   const fetchPayments = async (filters = {}) => {
     loading.value = true;
@@ -54,5 +54,14 @@ export const usePaymentStore = defineStore('payment', () => {
     }
   };
 
-  return { payments, loading, saving, error, fetchPayments, createPayment, updatePayment, deletePayment };
+  return {
+    payments,
+    loading,
+    saving,
+    error,
+    fetchPayments,
+    createPayment,
+    updatePayment,
+    deletePayment,
+  };
 });

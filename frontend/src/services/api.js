@@ -1,9 +1,9 @@
-const BASE_URL = '/api';
+const BASE_URL = "/api";
 
 const request = async (endpoint, options = {}) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options.headers },
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...options.headers },
     ...options,
   });
 
@@ -23,9 +23,9 @@ export const get = (endpoint, params) => {
 };
 
 export const post = (endpoint, body) =>
-  request(endpoint, { method: 'POST', body: JSON.stringify(body) });
+  request(endpoint, { method: "POST", body: JSON.stringify(body) });
 
 export const put = (endpoint, body) =>
-  request(endpoint, { method: 'PUT', body: JSON.stringify(body) });
+  request(endpoint, { method: "PUT", body: JSON.stringify(body) });
 
-export const del = (endpoint) => request(endpoint, { method: 'DELETE' });
+export const del = (endpoint) => request(endpoint, { method: "DELETE" });

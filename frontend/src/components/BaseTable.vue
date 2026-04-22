@@ -31,11 +31,11 @@
 </template>
 
 <script setup>
-import BaseCard from './BaseCard.vue';
+import BaseCard from "./BaseCard.vue";
 
 defineProps({
-  headers:   { type: Array,   default: () => [] },
-  isEmpty:   { type: Boolean, default: false },
-  emptyText: { type: String,  default: 'No hay datos.' },
+  headers: { type: Array, default: () => [] },
+  isEmpty: { type: Boolean, default: false },
+  emptyText: { type: String, default: "No hay datos." },
 });
 </script>

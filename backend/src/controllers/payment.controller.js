@@ -1,5 +1,5 @@
-import * as PaymentService from '../services/payment.service.js';
-import { success } from '../utils/response.js';
+import * as PaymentService from "../services/payment.service.js";
+import { success } from "../utils/response.js";
 
 export const getAll = async (req, res, next) => {
   try {
@@ -12,7 +12,11 @@ export const getAll = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    success(res, await PaymentService.createPayment(req.body, req.session.userId), 201);
+    success(
+      res,
+      await PaymentService.createPayment(req.body, req.session.userId),
+      201,
+    );
   } catch (err) {
     next(err);
   }
@@ -20,7 +24,10 @@ export const create = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   try {
-    success(res, await PaymentService.updatePayment(parseInt(req.params.id), req.body));
+    success(
+      res,
+      await PaymentService.updatePayment(parseInt(req.params.id), req.body),
+    );
   } catch (err) {
     next(err);
   }

@@ -1,10 +1,8 @@
-import * as api from './api.js';
+import * as api from "./api.js";
 
 export const login = (email, password) =>
-  api.post('/auth/login', { email, password });
+  api.post("/auth/login", { email, password });
 
-export const logout = () =>
-  api.post('/auth/logout', {});
+export const logout = () => api.post("/auth/logout", {});
 
-export const fetchCurrentUser = () =>
-  api.get('/auth/me');
+export const fetchCurrentUser = () => api.get("/auth/me");

@@ -1,5 +1,5 @@
-import * as AuthService from '../services/auth.service.js';
-import { success } from '../utils/response.js';
+import * as AuthService from "../services/auth.service.js";
+import { success } from "../utils/response.js";
 
 export const login = async (req, res, next) => {
   try {
@@ -15,7 +15,7 @@ export const login = async (req, res, next) => {
 export const logout = (req, res, next) => {
   req.session.destroy((err) => {
     if (err) return next(err);
-    res.clearCookie('connect.sid');
+    res.clearCookie("connect.sid");
     res.status(200).json({ success: true, data: null });
   });
 };

@@ -1,12 +1,12 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import * as ClientService from '@/services/client.service.js';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import * as ClientService from "@/services/client.service.js";
 
-export const useClientStore = defineStore('client', () => {
+export const useClientStore = defineStore("client", () => {
   const clients = ref([]);
   const loading = ref(false);
-  const saving  = ref(false);
-  const error   = ref(null);
+  const saving = ref(false);
+  const error = ref(null);
 
   const fetchClients = async () => {
     loading.value = true;
@@ -56,5 +56,14 @@ export const useClientStore = defineStore('client', () => {
     }
   };
 
-  return { clients, loading, saving, error, fetchClients, createClient, updateClient, deleteClient };
+  return {
+    clients,
+    loading,
+    saving,
+    error,
+    fetchClients,
+    createClient,
+    updateClient,
+    deleteClient,
+  };
 });

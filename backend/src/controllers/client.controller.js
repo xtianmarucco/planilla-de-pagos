@@ -1,5 +1,5 @@
-import * as ClientService from '../services/client.service.js';
-import { success } from '../utils/response.js';
+import * as ClientService from "../services/client.service.js";
+import { success } from "../utils/response.js";
 
 export const getAll = async (req, res, next) => {
   try {
@@ -21,7 +21,10 @@ export const create = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   try {
-    const client = await ClientService.updateClient(parseInt(req.params.id), req.body);
+    const client = await ClientService.updateClient(
+      parseInt(req.params.id),
+      req.body,
+    );
     success(res, client);
   } catch (err) {
     next(err);

@@ -1,4 +1,5 @@
-import prisma from '../lib/prisma.js';
+import prisma from "../lib/prisma.js";
+import { toPaymentDate } from "../utils/paymentDate.js";
 
 const clientSelect = { select: { id: true, name: true, type: true } };
 
@@ -9,14 +10,14 @@ export const findAll = ({ client_id, from, to } = {}) => {
 
   if (from || to) {
     where.payment_date = {};
-    if (from) where.payment_date.gte = new Date(from);
-    if (to)   where.payment_date.lte = new Date(to);
+    if (from) where.payment_date.gte = toPaymentDate(from);
+    if (to) where.payment_date.lte = toPaymentDate(to);
   }
 
   return prisma.payments.findMany({
     where,
     include: { client: clientSelect },
-    orderBy: { payment_date: 'desc' },
+    orderBy: { payment_date: "desc" },
   });
 };
 
