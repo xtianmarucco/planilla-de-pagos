@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import { body, param, query } from 'express-validator';
 import { validate } from '../middlewares/validate.js';
+import { requireAuth } from '../middlewares/auth.middleware.js';
 import * as PaymentController from '../controllers/payment.controller.js';
 
 const router = Router();
+
+router.use(requireAuth);
 
 const updateBodyRules = [
   body('amount')

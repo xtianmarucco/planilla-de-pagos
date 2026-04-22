@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { validate } from '../middlewares/validate.js';
+import { requireAuth } from '../middlewares/auth.middleware.js';
 import * as ClientController from '../controllers/client.controller.js';
 
 const router = Router();
@@ -24,6 +25,8 @@ const bodyRules = [
     .isLength({ max: 200 })
     .withMessage('La dirección no puede superar los 200 caracteres'),
 ];
+
+router.use(requireAuth);
 
 router.get('/', ClientController.getAll);
 

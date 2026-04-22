@@ -38,14 +38,39 @@
       </button>
     </nav>
 
-    <!-- Footer -->
-    <p class="text-xs text-gray-400 text-center m-0">v1.0.0</p>
+    <!-- User + logout -->
+    <div class="border-t border-gray-100 pt-4">
+      <div class="flex items-center gap-2 px-2 mb-3">
+        <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <span class="text-xs font-bold text-primary">{{ userInitial }}</span>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold text-brand-text truncate m-0">{{ authStore.user?.name }}</p>
+          <p class="text-[11px] text-gray-400 truncate m-0">{{ authStore.user?.email }}</p>
+        </div>
+      </div>
+      <button
+        @click="handleLogout"
+        class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors text-sm"
+      >
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </div>
 
   </aside>
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth.store.js';
+
+const authStore = useAuthStore();
+const userInitial = computed(() => authStore.user?.name?.[0]?.toUpperCase() ?? '?');
 
 const route  = useRoute();
 const router = useRouter();
@@ -75,4 +100,9 @@ const isActive = (item) =>
   item.exact ? route.path === item.path : route.path.startsWith(item.path);
 
 const navigate = (path) => router.push(path);
+
+const handleLogout = async () => {
+  await authStore.logout();
+  router.push('/login');
+};
 </script>

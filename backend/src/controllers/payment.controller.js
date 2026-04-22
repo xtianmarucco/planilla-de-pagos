@@ -12,7 +12,7 @@ export const getAll = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    success(res, await PaymentService.createPayment(req.body), 201);
+    success(res, await PaymentService.createPayment(req.body, req.session.userId), 201);
   } catch (err) {
     next(err);
   }

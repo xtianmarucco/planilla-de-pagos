@@ -1,6 +1,15 @@
 -- Create database (run manually once)
 -- CREATE DATABASE planilla_pagos;
 
+-- ============================================================
+-- AUTH MIGRATION — run this in Supabase SQL editor
+-- Adds: name column to users, user_id FK to payments
+-- ============================================================
+ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT NOT NULL DEFAULT '';
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);
+CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
+-- ============================================================
+
 CREATE TABLE IF NOT EXISTS employees (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,

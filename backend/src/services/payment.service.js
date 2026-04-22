@@ -15,12 +15,13 @@ export const getPaymentById = async (id) => {
   return payment;
 };
 
-export const createPayment = async (data) => {
+export const createPayment = async (data, userId) => {
   const client = await ClientRepository.findById(data.client_id);
   if (!client || !client.is_active) throw new AppError('Cliente no encontrado', 404);
 
   return PaymentRepository.create({
     client_id:      data.client_id,
+    user_id:        userId ?? null,
     amount:         parseFloat(data.amount),
     payment_date:   new Date(data.payment_date),
     payment_method: data.payment_method,
