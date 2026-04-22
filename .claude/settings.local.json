@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(node src/server.js)",
+      "Bash(curl -s http://localhost:3000/api/clients)",
+      "Bash(kill %1)",
+      "Bash(node --input-type=module)",
+      "Bash(npm run *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
