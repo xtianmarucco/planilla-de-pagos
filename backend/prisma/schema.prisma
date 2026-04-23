@@ -1,25 +1,61 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-// =========================
-// GENERATOR & DATASOURCE
-// =========================
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// =========================
-// ENUMS
-// =========================
+model clients {
+  id         Int         @id @default(autoincrement())
+  name       String
+  type       client_type
+  phone      String?
+  address    String?
+  is_active  Boolean?    @default(true)
+  created_at DateTime?   @default(now()) @db.Timestamp(6)
+  payments   payments[]
+
+  @@index([name], map: "idx_clients_name")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model payments {
+  id             Int            @id @default(autoincrement())
+  client_id      Int
+  amount         Decimal        @db.Decimal(12, 2)
+  payment_date   DateTime       @db.Date
+  payment_method payment_method
+  notes          String?
+  created_at     DateTime?      @default(now()) @db.Timestamp(6)
+  user_id        Int?
+  clients        clients        @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users          users?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([client_id, payment_date], map: "idx_payments_client_date")
+  @@index([client_id], map: "idx_payments_client_id")
+  @@index([payment_date], map: "idx_payments_payment_date")
+  @@index([user_id], map: "idx_payments_user_id")
+}
+
+model session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+}
+
+model users {
+  id            Int        @id @default(autoincrement())
+  email         String     @unique
+  password_hash String
+  created_at    DateTime?  @default(now()) @db.Timestamp(6)
+  name          String     @default("")
+  payments      payments[]
+}
 
 enum client_type {
   MAYORISTA
@@ -30,49 +66,4 @@ enum payment_method {
   EFECTIVO
   TRANSFERENCIA
   OTRO
-}
-
-// =========================
-// MODELS
-// =========================
-
-model users {
-  id            Int        @id @default(autoincrement())
-  name          String
-  email         String     @unique
-  password_hash String
-  created_at    DateTime   @default(now())
-
-  payments      payments[]
-}
-
-model clients {
-  id         Int          @id @default(autoincrement())
-  name       String
-  type       client_type
-  phone      String?
-  address    String?
-  is_active  Boolean      @default(true)
-  created_at DateTime     @default(now())
-
-  payments   payments[]
-}
-
-model payments {
-  id             Int             @id @default(autoincrement())
-  client_id      Int
-  user_id        Int?
-  amount         Decimal         @db.Decimal(12, 2)
-  payment_date   DateTime        @db.Date
-  payment_method payment_method
-  notes          String?
-  created_at     DateTime        @default(now())
-
-  client         clients         @relation(fields: [client_id], references: [id], onDelete: Cascade)
-  user           users?          @relation(fields: [user_id], references: [id])
-
-  @@index([client_id])
-  @@index([payment_date])
-  @@index([client_id, payment_date])
-  @@index([user_id])
 }
