@@ -1,39 +1,50 @@
--- Create database (run manually once)
--- CREATE DATABASE planilla_pagos;
-
 -- ============================================================
--- AUTH MIGRATION — run this in Supabase SQL editor
--- Adds: name column to users, user_id FK to payments
--- ============================================================
-ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT NOT NULL DEFAULT '';
-ALTER TABLE payments ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);
-CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
+-- Planilla de Pagos — complete database setup
+-- Run this in the Supabase SQL editor for a clean install.
+-- Schema is the source of truth: backend/prisma/schema.prisma
 -- ============================================================
 
-CREATE TABLE IF NOT EXISTS employees (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(150) UNIQUE NOT NULL,
-  position VARCHAR(100),
-  base_salary NUMERIC(12, 2) NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+-- ENUMS
+DO $$ BEGIN
+  CREATE TYPE client_type    AS ENUM ('MAYORISTA', 'VIABANA');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE payment_method AS ENUM ('EFECTIVO', 'TRANSFERENCIA', 'OTRO');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- TABLES
+CREATE TABLE IF NOT EXISTS users (
+  id            SERIAL PRIMARY KEY,
+  name          TEXT        NOT NULL,
+  email         TEXT        NOT NULL UNIQUE,
+  password_hash TEXT        NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS clients (
+  id         SERIAL PRIMARY KEY,
+  name       TEXT        NOT NULL,
+  type       client_type NOT NULL,
+  phone      TEXT,
+  address    TEXT,
+  is_active  BOOLEAN     NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS payments (
-  id SERIAL PRIMARY KEY,
-  employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-  period VARCHAR(7) NOT NULL,  -- Format: YYYY-MM
-  gross_amount NUMERIC(12, 2) NOT NULL,
-  deductions NUMERIC(12, 2) NOT NULL DEFAULT 0,
-  net_amount NUMERIC(12, 2) GENERATED ALWAYS AS (gross_amount - deductions) STORED,
-  status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'cancelled')),
-  payment_date DATE,
-  notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  id             SERIAL PRIMARY KEY,
+  client_id      INTEGER        NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  user_id        INTEGER        REFERENCES users(id),
+  amount         NUMERIC(12, 2) NOT NULL,
+  payment_date   DATE           NOT NULL,
+  payment_method payment_method NOT NULL,
+  notes          TEXT,
+  created_at     TIMESTAMPTZ    NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_payments_employee_id ON payments(employee_id);
-CREATE INDEX IF NOT EXISTS idx_payments_period ON payments(period);
-CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_payments_client_id   ON payments(client_id);
+CREATE INDEX IF NOT EXISTS idx_payments_payment_date ON payments(payment_date);
+CREATE INDEX IF NOT EXISTS idx_payments_client_date  ON payments(client_id, payment_date);
+CREATE INDEX IF NOT EXISTS idx_payments_user_id      ON payments(user_id);

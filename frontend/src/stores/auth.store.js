@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import * as authService from '@/services/auth.service.js';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import * as authService from "@/services/auth.service.js";
 
-export const useAuthStore = defineStore('auth', () => {
-  const user        = ref(null);
-  const loading     = ref(false);
+export const useAuthStore = defineStore("auth", () => {
+  const user = ref(null);
+  const loading = ref(false);
   const initialized = ref(false);
 
   const init = async () => {

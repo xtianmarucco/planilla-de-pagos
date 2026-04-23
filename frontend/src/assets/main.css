@@ -3,17 +3,21 @@
 @tailwind utilities;
 
 @layer base {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
 
   body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+      sans-serif;
     -webkit-font-smoothing: antialiased;
-    color: #193B68;
-    background-color: #F5F7FB;
+    color: #193b68;
+    background-color: #f5f7fb;
   }
 
   * {

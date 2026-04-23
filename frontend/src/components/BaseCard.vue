@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="bg-white rounded-3xl shadow-card"
-    :class="noPadding ? '' : 'p-6'"
-  >
+  <div class="bg-white rounded-3xl shadow-card" :class="noPadding ? '' : 'p-6'">
     <slot />
   </div>
 </template>

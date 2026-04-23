@@ -12,9 +12,11 @@
         v-if="show"
         role="alert"
         class="fixed top-6 right-6 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-card min-w-[260px] max-w-sm"
-        :class="type === 'success'
-          ? 'bg-white border-l-4 border-green-500'
-          : 'bg-white border-l-4 border-red-500'"
+        :class="
+          type === 'success'
+            ? 'bg-white border-l-4 border-green-500'
+            : 'bg-white border-l-4 border-red-500'
+        "
       >
         <div
           class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -23,15 +25,17 @@
           <svg
             class="w-4 h-4"
             :class="type === 'success' ? 'text-green-600' : 'text-red-500'"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2.5"
-              :d="type === 'success'
-                ? 'M5 13l4 4L19 7'
-                : 'M6 18L18 6M6 6l12 12'"
+              :d="
+                type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'
+              "
             />
           </svg>
         </div>
@@ -43,8 +47,8 @@
 
 <script setup>
 defineProps({
-  show:    { type: Boolean, default: false },
-  message: { type: String,  default: '' },
-  type:    { type: String,  default: 'success' },
+  show: { type: Boolean, default: false },
+  message: { type: String, default: "" },
+  type: { type: String, default: "success" },
 });
 </script>
