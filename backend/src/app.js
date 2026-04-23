@@ -12,6 +12,7 @@ import clientRouter from "./routes/client.routes.js";
 import authRouter from "./routes/auth.routes.js";
 
 const isProduction = process.env.NODE_ENV === "production";
+const secureCookie = process.env.SECURE_COOKIE === "true";
 
 if (isProduction && !process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET must be set in production");
@@ -51,8 +52,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: secureCookie,
+      sameSite: secureCookie ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   }),
