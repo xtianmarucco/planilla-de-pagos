@@ -44,6 +44,18 @@ export const usePaymentStore = defineStore("payment", () => {
     }
   };
 
+  const updatePaymentStatus = async (id, status) => {
+    saving.value = true;
+    try {
+      const res = await PaymentService.updatePaymentStatus(id, status);
+      const idx = payments.value.findIndex((p) => p.id === id);
+      if (idx !== -1) payments.value[idx] = res.data;
+      return res.data;
+    } finally {
+      saving.value = false;
+    }
+  };
+
   const deletePayment = async (id) => {
     saving.value = true;
     try {
@@ -62,6 +74,7 @@ export const usePaymentStore = defineStore("payment", () => {
     fetchPayments,
     createPayment,
     updatePayment,
+    updatePaymentStatus,
     deletePayment,
   };
 });

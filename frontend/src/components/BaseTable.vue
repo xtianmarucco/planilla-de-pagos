@@ -27,6 +27,9 @@
         </tbody>
       </table>
     </div>
+    <div v-if="$slots.footer" class="border-t border-gray-100 px-6 py-3">
+      <slot name="footer" />
+    </div>
   </BaseCard>
 </template>
 

@@ -14,14 +14,28 @@
             ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
             : 'border-gray-200 focus:border-primary focus:ring-primary/10'
         "
+        @change="onClientChange"
       >
         <option value="">Seleccionar cliente...</option>
         <option v-for="c in clients" :key="c.id" :value="c.id">
           {{ c.name }}
         </option>
       </select>
-      <p v-if="errors.client_id" class="mt-1 text-xs text-red-500">
-        {{ errors.client_id }}
+      <p v-if="errors.client_id" class="mt-1 text-xs text-red-500">{{ errors.client_id }}</p>
+    </div>
+
+    <!-- Sucursal (solo MAYORISTA) -->
+    <div v-if="isMayorista">
+      <label class="block text-xs font-semibold text-brand-text mb-1.5">Sucursal</label>
+      <select
+        v-model="form.sucursal_id"
+        class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-brand-text bg-white focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary/10 transition-all"
+      >
+        <option :value="null">Sin sucursal</option>
+        <option v-for="s in sucursales" :key="s.id" :value="s.id">{{ s.name }}</option>
+      </select>
+      <p v-if="sucursales.length === 0" class="mt-1 text-xs text-gray-400">
+        No hay sucursales creadas para este cliente.
       </p>
     </div>
 
@@ -30,14 +44,8 @@
       <label class="block text-xs font-semibold text-brand-text mb-1.5">
         Fecha <span class="text-red-500">*</span>
       </label>
-      <BaseInput
-        v-model="form.payment_date"
-        :error="!!errors.payment_date"
-        type="date"
-      />
-      <p v-if="errors.payment_date" class="mt-1 text-xs text-red-500">
-        {{ errors.payment_date }}
-      </p>
+      <BaseInput v-model="form.payment_date" :error="!!errors.payment_date" type="date" />
+      <p v-if="errors.payment_date" class="mt-1 text-xs text-red-500">{{ errors.payment_date }}</p>
     </div>
 
     <!-- Monto -->
@@ -45,17 +53,8 @@
       <label class="block text-xs font-semibold text-brand-text mb-1.5">
         Monto <span class="text-red-500">*</span>
       </label>
-      <BaseInput
-        v-model="form.amount"
-        :error="!!errors.amount"
-        type="number"
-        step="0.01"
-        min="0.01"
-        placeholder="0.00"
-      />
-      <p v-if="errors.amount" class="mt-1 text-xs text-red-500">
-        {{ errors.amount }}
-      </p>
+      <BaseInput v-model="form.amount" :error="!!errors.amount" type="number" step="0.01" min="0.01" placeholder="0.00" />
+      <p v-if="errors.amount" class="mt-1 text-xs text-red-500">{{ errors.amount }}</p>
     </div>
 
     <!-- Método de pago -->
@@ -73,20 +72,20 @@
         "
       >
         <option value="">Seleccionar método...</option>
-        <option value="EFECTIVO">EFECTIVO</option>
-        <option value="TRANSFERENCIA">TRANSFERENCIA</option>
-        <option value="OTRO">OTRO</option>
+        <option value="EFECTIVO">Efectivo</option>
+        <option value="TRANSFERENCIA">Transferencia</option>
+        <option value="CUENTA_CORRIENTE">Cuenta corriente</option>
+        <option value="OTRO">Otro</option>
       </select>
-      <p v-if="errors.payment_method" class="mt-1 text-xs text-red-500">
-        {{ errors.payment_method }}
+      <p v-if="errors.payment_method" class="mt-1 text-xs text-red-500">{{ errors.payment_method }}</p>
+      <p v-if="form.payment_method === 'CUENTA_CORRIENTE'" class="mt-1 text-xs text-amber-600">
+        Los pagos en cuenta corriente quedan como pendientes de cobro.
       </p>
     </div>
 
     <!-- Observaciones -->
     <div>
-      <label class="block text-xs font-semibold text-brand-text mb-1.5"
-        >Observaciones</label
-      >
+      <label class="block text-xs font-semibold text-brand-text mb-1.5">Observaciones</label>
       <textarea
         v-model="form.notes"
         rows="3"
@@ -99,29 +98,16 @@
             : 'border-gray-200 focus:border-primary focus:ring-primary/10'
         "
       ></textarea>
-      <p v-if="errors.notes" class="mt-1 text-xs text-red-500">
-        {{ errors.notes }}
-      </p>
+      <p v-if="errors.notes" class="mt-1 text-xs text-red-500">{{ errors.notes }}</p>
     </div>
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 pt-2">
-      <BaseButton
-        variant="ghost"
-        type="button"
-        @click="$emit('cancel')"
-        :disabled="saving"
-      >
+      <BaseButton variant="ghost" type="button" @click="$emit('cancel')" :disabled="saving">
         Cancelar
       </BaseButton>
       <BaseButton variant="primary" type="submit" :disabled="saving">
-        {{
-          saving
-            ? "Guardando..."
-            : isEditing
-              ? "Guardar cambios"
-              : "Registrar pago"
-        }}
+        {{ saving ? "Guardando..." : isEditing ? "Guardar cambios" : "Registrar pago" }}
       </BaseButton>
     </div>
   </form>
@@ -135,94 +121,89 @@ import { todayInputValue, toDateInputValue } from "@/utils/paymentDate.js";
 
 const props = defineProps({
   initialData: { type: Object, default: null },
-  clients: { type: Array, default: () => [] },
-  saving: { type: Boolean, default: false },
+  clients:     { type: Array,  default: () => [] },
+  sucursales:  { type: Array,  default: () => [] },
+  saving:      { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["submit", "cancel"]);
+const emit = defineEmits(["submit", "cancel", "client-change"]);
 
 const today = todayInputValue();
 
 const form = reactive({
-  client_id: "",
-  payment_date: today,
-  amount: "",
+  client_id:      "",
+  sucursal_id:    null,
+  payment_date:   today,
+  amount:         "",
   payment_method: "",
-  notes: "",
+  notes:          "",
 });
 
 const errors = reactive({
-  client_id: "",
-  payment_date: "",
-  amount: "",
+  client_id:      "",
+  payment_date:   "",
+  amount:         "",
   payment_method: "",
-  notes: "",
+  notes:          "",
 });
 
 const isEditing = computed(() => !!props.initialData);
+
+const selectedClient = computed(() =>
+  props.clients.find((c) => c.id === Number(form.client_id)) ?? null,
+);
+
+const isMayorista = computed(() => selectedClient.value?.type === "MAYORISTA");
 
 watch(
   () => props.initialData,
   (val) => {
     if (val) {
-      form.client_id = val.client_id;
-      form.payment_date = toDateInputValue(val.payment_date) || today;
-      form.amount = val.amount ?? "";
+      form.client_id      = val.client_id;
+      form.sucursal_id    = val.sucursal_id ?? null;
+      form.payment_date   = toDateInputValue(val.payment_date) || today;
+      form.amount         = val.amount ?? "";
       form.payment_method = val.payment_method ?? "";
-      form.notes = val.notes ?? "";
+      form.notes          = val.notes ?? "";
     } else {
-      form.client_id = "";
-      form.payment_date = today;
-      form.amount = "";
+      form.client_id      = "";
+      form.sucursal_id    = null;
+      form.payment_date   = today;
+      form.amount         = "";
       form.payment_method = "";
-      form.notes = "";
+      form.notes          = "";
     }
     Object.keys(errors).forEach((k) => (errors[k] = ""));
   },
   { immediate: true },
 );
 
+const onClientChange = () => {
+  form.sucursal_id = null;
+  emit("client-change", form.client_id ? Number(form.client_id) : null);
+};
+
 const validate = () => {
   Object.keys(errors).forEach((k) => (errors[k] = ""));
   let valid = true;
-
-  if (!form.client_id) {
-    errors.client_id = "Seleccioná un cliente.";
-    valid = false;
-  }
-
-  if (!form.payment_date) {
-    errors.payment_date = "La fecha es obligatoria.";
-    valid = false;
-  }
-
+  if (!form.client_id) { errors.client_id = "Seleccioná un cliente."; valid = false; }
+  if (!form.payment_date) { errors.payment_date = "La fecha es obligatoria."; valid = false; }
   const amount = parseFloat(form.amount);
-  if (!form.amount || isNaN(amount) || amount <= 0) {
-    errors.amount = "El monto debe ser mayor a 0.";
-    valid = false;
-  }
-
-  if (!form.payment_method) {
-    errors.payment_method = "Seleccioná un método de pago.";
-    valid = false;
-  }
-
-  if (form.notes && form.notes.trim().length > 500) {
-    errors.notes = "Máximo 500 caracteres.";
-    valid = false;
-  }
-
+  if (!form.amount || isNaN(amount) || amount <= 0) { errors.amount = "El monto debe ser mayor a 0."; valid = false; }
+  if (!form.payment_method) { errors.payment_method = "Seleccioná un método de pago."; valid = false; }
+  if (form.notes && form.notes.trim().length > 500) { errors.notes = "Máximo 500 caracteres."; valid = false; }
   return valid;
 };
 
 const handleSubmit = () => {
   if (!validate()) return;
   emit("submit", {
-    client_id: parseInt(form.client_id),
-    payment_date: form.payment_date,
-    amount: parseFloat(form.amount),
+    client_id:      parseInt(form.client_id),
+    sucursal_id:    form.sucursal_id ?? null,
+    payment_date:   form.payment_date,
+    amount:         parseFloat(form.amount),
     payment_method: form.payment_method,
-    notes: form.notes.trim() || null,
+    notes:          form.notes.trim() || null,
   });
 };
 </script>
