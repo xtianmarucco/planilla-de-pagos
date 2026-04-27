@@ -63,7 +63,6 @@
           <BaseInput v-model="filters.to" type="date" />
         </div>
         <div class="flex gap-2 items-end">
-          <BaseButton @click="applyFilters">Filtrar</BaseButton>
           <BaseButton variant="ghost" @click="clearFilters">Limpiar</BaseButton>
         </div>
       </div>
@@ -78,7 +77,7 @@
     </div>
     <PaymentTable
       v-else
-      :payments="paymentStore.payments"
+      :payments="filteredPayments"
       :toggling="toggling"
       @edit="openEdit"
       @delete="openConfirmDelete"
@@ -149,10 +148,11 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, computed, onMounted } from "vue";
 import { usePaymentStore } from "@/stores/payment.store.js";
 import { useClientStore } from "@/stores/client.store.js";
 import * as SucursalService from "@/services/sucursal.service.js";
+import { toDateInputValue } from "@/utils/paymentDate.js";
 import PaymentTable from "@/components/PaymentTable.vue";
 import PaymentForm from "@/components/PaymentForm.vue";
 import AppToast from "@/components/AppToast.vue";
@@ -188,11 +188,25 @@ const handleClientChange = async (clientId) => {
 
 // ── Filtros ─────────────────────────────────────────────
 const filters = reactive({ client_name: "", client_id: "", client_type: "", status: "", amount: "", from: "", to: "" });
-const applyFilters = () => paymentStore.fetchPayments({ ...filters });
-const clearFilters = () => {
-  Object.assign(filters, { client_name: "", client_id: "", client_type: "", status: "", amount: "", from: "", to: "" });
-  paymentStore.fetchPayments();
-};
+const clearFilters = () => Object.assign(filters, { client_name: "", client_id: "", client_type: "", status: "", amount: "", from: "", to: "" });
+
+const filteredPayments = computed(() => {
+  let list = paymentStore.payments;
+  if (filters.client_id)        list = list.filter((p) => p.client_id === Number(filters.client_id));
+  if (filters.client_type)      list = list.filter((p) => p.client?.type === filters.client_type);
+  if (filters.status)           list = list.filter((p) => p.status === filters.status);
+  if (filters.client_name.trim()) {
+    const q = filters.client_name.trim().toLowerCase();
+    list = list.filter((p) => p.client?.name.toLowerCase().includes(q));
+  }
+  if (filters.amount) {
+    const amt = parseFloat(filters.amount);
+    if (!isNaN(amt)) list = list.filter((p) => Number(p.amount) === amt);
+  }
+  if (filters.from) list = list.filter((p) => toDateInputValue(p.payment_date) >= filters.from);
+  if (filters.to)   list = list.filter((p) => toDateInputValue(p.payment_date) <= filters.to);
+  return list;
+});
 
 // ── Modal pago ──────────────────────────────────────────
 const modal = reactive({ open: false, editing: false, data: null });
