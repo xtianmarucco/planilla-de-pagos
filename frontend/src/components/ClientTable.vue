@@ -9,26 +9,25 @@
       :key="client.id"
       class="border-b border-gray-50 hover:bg-brand-bg transition-colors duration-150"
     >
-      <td class="px-6 py-4 font-semibold text-brand-text text-sm">
-        {{ client.name }}
-      </td>
+      <td class="px-6 py-4 font-semibold text-brand-text text-sm">{{ client.name }}</td>
       <td class="px-6 py-4">
         <span
           class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
-          :class="
-            client.type === 'MAYORISTA'
-              ? 'bg-primary/10 text-primary'
-              : 'bg-green-100 text-green-700'
-          "
+          :class="client.type === 'MAYORISTA' ? 'bg-primary/10 text-primary' : 'bg-green-100 text-green-700'"
         >
           {{ client.type }}
         </span>
       </td>
       <td class="px-6 py-4 text-sm text-gray-500">{{ client.phone || "—" }}</td>
-      <td class="px-6 py-4 text-sm text-gray-500">
-        {{ client.address || "—" }}
-      </td>
+      <td class="px-6 py-4 text-sm text-gray-500">{{ client.address || "—" }}</td>
       <td class="px-6 py-4 text-right whitespace-nowrap">
+        <button
+          v-if="client.type === 'MAYORISTA'"
+          class="text-xs font-semibold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl hover:bg-amber-500 hover:text-white transition-all duration-200 mr-2"
+          @click="$emit('manage-sucursales', client)"
+        >
+          Sucursales
+        </button>
         <button
           class="text-xs font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-xl hover:bg-primary hover:text-white transition-all duration-200 mr-2"
           @click="$emit('edit', client)"
@@ -50,5 +49,5 @@
 import BaseTable from "./BaseTable.vue";
 
 defineProps({ clients: { type: Array, default: () => [] } });
-defineEmits(["edit", "delete"]);
+defineEmits(["edit", "delete", "manage-sucursales"]);
 </script>
