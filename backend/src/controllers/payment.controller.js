@@ -1,19 +1,10 @@
-import * as PaymentService from "../services/payment.service.js";
-import { success } from "../utils/response.js";
+import * as PaymentService from '../services/payment.service.js';
+import { success } from '../utils/response.js';
 
 export const getAll = async (req, res, next) => {
   try {
-    const { client_id, client_name, amount, from, to } = req.query;
-    success(
-      res,
-      await PaymentService.getPayments({
-        client_id,
-        client_name,
-        amount,
-        from,
-        to,
-      }),
-    );
+    const { client_id, sucursal_id, status, client_type, client_name, amount, from, to } = req.query;
+    success(res, await PaymentService.getPayments({ client_id, sucursal_id, status, client_type, client_name, amount, from, to }));
   } catch (err) {
     next(err);
   }
@@ -21,11 +12,7 @@ export const getAll = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    success(
-      res,
-      await PaymentService.createPayment(req.body, req.session.userId),
-      201,
-    );
+    success(res, await PaymentService.createPayment(req.body, req.session.userId), 201);
   } catch (err) {
     next(err);
   }
@@ -33,10 +20,15 @@ export const create = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   try {
-    success(
-      res,
-      await PaymentService.updatePayment(parseInt(req.params.id), req.body),
-    );
+    success(res, await PaymentService.updatePayment(parseInt(req.params.id), req.body));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateStatus = async (req, res, next) => {
+  try {
+    success(res, await PaymentService.updatePaymentStatus(parseInt(req.params.id), req.body.status));
   } catch (err) {
     next(err);
   }
