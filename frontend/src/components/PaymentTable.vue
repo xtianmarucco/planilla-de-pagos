@@ -5,7 +5,7 @@
     empty-text="No hay pagos registrados."
   >
     <tr
-      v-for="payment in payments"
+      v-for="payment in paged"
       :key="payment.id"
       class="border-b border-gray-50 hover:bg-brand-bg transition-colors duration-150"
     >
@@ -76,19 +76,41 @@
         </button>
       </td>
     </tr>
+
+    <template #footer>
+      <BasePagination
+        v-if="payments.length > pageSize"
+        v-model="page"
+        :total="payments.length"
+        :page-size="pageSize"
+      />
+    </template>
   </BaseTable>
 </template>
 
 <script setup>
+import { ref, computed, watch } from "vue";
 import BaseTable from "./BaseTable.vue";
+import BasePagination from "./BasePagination.vue";
 import { formatPaymentDate } from "@/utils/paymentDate.js";
 
-defineProps({
+const props = defineProps({
   payments: { type: Array,  default: () => [] },
   toggling: { type: Number, default: null },
 });
 
 defineEmits(["edit", "delete", "toggle-status"]);
+
+const PAGE_SIZE = 15;
+const pageSize  = PAGE_SIZE;
+const page      = ref(1);
+
+watch(() => props.payments, () => { page.value = 1; });
+
+const paged = computed(() => {
+  const start = (page.value - 1) * PAGE_SIZE;
+  return props.payments.slice(start, start + PAGE_SIZE);
+});
 
 const formatCurrency = (val) =>
   new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(val);
