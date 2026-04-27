@@ -11,6 +11,27 @@
       <BaseButton @click="openCreate">+ Nuevo cliente</BaseButton>
     </div>
 
+    <!-- Filters -->
+    <BaseCard>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+        <div>
+          <label class="block text-xs font-semibold text-brand-text mb-1.5">Buscar por nombre</label>
+          <BaseInput v-model="filters.name" placeholder="Nombre del cliente" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-brand-text mb-1.5">Tipo de cliente</label>
+          <select
+            v-model="filters.type"
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-brand-text bg-white focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary/10 transition-all"
+          >
+            <option value="">Todos los tipos</option>
+            <option value="MAYORISTA">Mayorista</option>
+            <option value="VIABANA">Viabana</option>
+          </select>
+        </div>
+      </div>
+    </BaseCard>
+
     <!-- Content -->
     <div v-if="clientStore.loading" class="flex items-center justify-center py-16 text-sm text-gray-400">
       Cargando...
@@ -20,7 +41,7 @@
     </div>
     <ClientTable
       v-else
-      :clients="clientStore.clients"
+      :clients="filteredClients"
       @edit="openEdit"
       @delete="openConfirmDelete"
       @manage-sucursales="openSucursales"
@@ -111,15 +132,29 @@
 </template>
 
 <script setup>
-import { reactive, onMounted } from "vue";
+import { reactive, computed, onMounted } from "vue";
 import { useClientStore } from "@/stores/client.store.js";
 import ClientTable from "@/components/ClientTable.vue";
 import ClientForm from "@/components/ClientForm.vue";
 import SucursalPanel from "@/components/SucursalPanel.vue";
 import AppToast from "@/components/AppToast.vue";
 import BaseButton from "@/components/BaseButton.vue";
+import BaseCard from "@/components/BaseCard.vue";
+import BaseInput from "@/components/BaseInput.vue";
 
 const clientStore = useClientStore();
+
+// ── Filtros ─────────────────────────────────────────────
+const filters = reactive({ name: "", type: "" });
+const filteredClients = computed(() => {
+  let list = clientStore.clients;
+  if (filters.type) list = list.filter((c) => c.type === filters.type);
+  if (filters.name.trim()) {
+    const q = filters.name.trim().toLowerCase();
+    list = list.filter((c) => c.name.toLowerCase().includes(q));
+  }
+  return list;
+});
 
 // ── Toast ───────────────────────────────────────────────
 const toast = reactive({ show: false, message: "", type: "success" });
