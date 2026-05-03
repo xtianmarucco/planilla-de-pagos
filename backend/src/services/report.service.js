@@ -1,5 +1,5 @@
 import * as ReportRepository from '../repositories/report.repository.js';
-import AppError from '../utils/AppError.js';
+import { AppError } from '../utils/AppError.js';
 
 export const getSummary = async (from, to) => {
   if (!from || !to) throw new AppError('Los parámetros from y to son requeridos', 400, 'VALIDATION_ERROR');
