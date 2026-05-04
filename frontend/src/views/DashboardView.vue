@@ -24,6 +24,7 @@
 import { computed, onMounted } from "vue";
 import { usePaymentStore } from "@/stores/payment.store.js";
 import { useClientStore } from "@/stores/client.store.js";
+import { toDateInputValue } from "@/utils/paymentDate.js";
 import DashboardStatsSection from "@/components/DashboardStatsSection.vue";
 
 const paymentStore = usePaymentStore();
@@ -48,18 +49,33 @@ const formatCurrency = (value) =>
     value,
   );
 
+const today = new Date();
+const currentMonthFrom = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`;
+const currentMonthTo   = today.toISOString().slice(0, 10);
+
+const currentMonthLabel = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" })
+  .format(today)
+  .replace(/^./, (c) => c.toUpperCase());
+
 const clientsByType = (type) =>
   clientStore.clients.filter((client) => client.type === type);
 
 const paymentsByType = (type) =>
   paymentStore.payments.filter((payment) => payment.client?.type === type);
 
+const currentMonthPaymentsByType = (type) =>
+  paymentsByType(type).filter((p) => {
+    const date = toDateInputValue(p.payment_date);
+    return date >= currentMonthFrom && date <= currentMonthTo;
+  });
+
 const totalPayments = (payments) =>
   payments.reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0);
 
 const buildStats = (type) => {
-  const clients = clientsByType(type);
+  const clients  = clientsByType(type);
   const payments = paymentsByType(type);
+  const monthPayments = currentMonthPaymentsByType(type);
 
   return [
     {
@@ -77,8 +93,8 @@ const buildStats = (type) => {
       iconColor: "text-green-600",
     },
     {
-      label: "Total cobrado",
-      value: formatCurrency(totalPayments(payments)),
+      label: `Total cobrado — ${currentMonthLabel}`,
+      value: formatCurrency(totalPayments(monthPayments)),
       icon: statIcons.total,
       iconBg: "bg-amber-100",
       iconColor: "text-amber-600",

@@ -1,14 +1,16 @@
 import * as ReportRepository from '../repositories/report.repository.js';
-import AppError from '../utils/AppError.js';
+import { AppError } from '../utils/AppError.js';
 
-export const getSummary = async (from, to) => {
+export const getSummary = async (from, to, { client_id, client_type } = {}) => {
   if (!from || !to) throw new AppError('Los parámetros from y to son requeridos', 400, 'VALIDATION_ERROR');
 
+  const filters = { client_id, client_type };
+
   const [totals, byStatus, byMethod, payments] = await Promise.all([
-    ReportRepository.getTotals(from, to),
-    ReportRepository.getByStatus(from, to),
-    ReportRepository.getByMethod(from, to),
-    ReportRepository.getPayments(from, to),
+    ReportRepository.getTotals(from, to, filters),
+    ReportRepository.getByStatus(from, to, filters),
+    ReportRepository.getByMethod(from, to, filters),
+    ReportRepository.getPayments(from, to, filters),
   ]);
 
   const byClientType = Object.values(

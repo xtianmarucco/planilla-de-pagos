@@ -8,8 +8,33 @@
       <p class="text-sm text-gray-400 mt-1">Totales y detalle de pagos por período</p>
     </div>
 
-    <!-- Date range -->
+    <!-- Filters -->
     <BaseCard>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="block text-xs font-semibold text-brand-text mb-1.5">Tipo de cliente</label>
+          <select
+            v-model="clientType"
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-brand-text bg-white focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary/10 transition-all"
+            @change="clientId = ''"
+          >
+            <option value="">Todos los tipos</option>
+            <option value="MAYORISTA">Mayorista</option>
+            <option value="VIABANA">Viabana</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-brand-text mb-1.5">Cliente</label>
+          <select
+            v-model="clientId"
+            :disabled="!clientType"
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-brand-text bg-white focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary/10 transition-all disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+          >
+            <option value="">Todos los clientes</option>
+            <option v-for="c in filteredClients" :key="c.id" :value="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+      </div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
         <div>
           <label class="block text-xs font-semibold text-brand-text mb-1.5">Desde</label>
@@ -128,21 +153,33 @@
 <script setup>
 import { ref, reactive, computed } from "vue";
 import * as ReportService from "@/services/report.service.js";
+import { useClientStore } from "@/stores/client.store.js";
 import PaymentTable from "@/components/PaymentTable.vue";
 import AppToast from "@/components/AppToast.vue";
 import BaseButton from "@/components/BaseButton.vue";
 import BaseCard from "@/components/BaseCard.vue";
 import BaseInput from "@/components/BaseInput.vue";
 
+const clientStore = useClientStore();
+if (!clientStore.clients.length) clientStore.fetchClients();
+
 // ── Defaults: primer día del mes actual → hoy ───────────
 const today = new Date();
 const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 const fmt = (d) => d.toISOString().slice(0, 10);
 
-const from    = ref(fmt(firstOfMonth));
-const to      = ref(fmt(today));
-const loading = ref(false);
-const summary = ref(null);
+const from       = ref(fmt(firstOfMonth));
+const to         = ref(fmt(today));
+const clientType = ref("");
+const clientId   = ref("");
+const loading    = ref(false);
+const summary    = ref(null);
+
+const filteredClients = computed(() =>
+  clientType.value
+    ? clientStore.clients.filter((c) => c.type === clientType.value)
+    : [],
+);
 
 // ── Toast ────────────────────────────────────────────────
 const toast = reactive({ show: false, message: "", type: "success" });
@@ -158,7 +195,10 @@ const fetchData = async () => {
   if (!from.value || !to.value) return;
   loading.value = true;
   try {
-    const res = await ReportService.fetchSummary(from.value, to.value);
+    const res = await ReportService.fetchSummary(from.value, to.value, {
+      client_type: clientType.value || undefined,
+      client_id:   clientId.value   || undefined,
+    });
     summary.value = res.data;
   } catch (err) {
     showToast(err.message || "No se pudo cargar el resumen.");
