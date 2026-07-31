@@ -1,12 +1,12 @@
 # Planilla de Pagos Online
 
-Sistema de gestión de pagos de empleados. Monorepo con backend Node.js/Express/PostgreSQL y frontend Vue 3/Vite/Pinia.
+Sistema de gestión de pagos de empleados. Monorepo con backend Node.js/Express/PostgreSQL (Prisma) y frontend Vue 3/Vite/Pinia.
 
 ## Estructura
 
 ```
 /
-├── backend/         Node.js + Express + PostgreSQL
+├── backend/         Node.js + Express + PostgreSQL (Prisma)
 ├── frontend/        Vue 3 + Vite + Pinia
 └── docs/            Reglas de arquitectura y contrato de API
 ```
@@ -15,19 +15,20 @@ Sistema de gestión de pagos de empleados. Monorepo con backend Node.js/Express/
 
 - Node.js >= 20
 - npm >= 9
-- PostgreSQL >= 15
+- PostgreSQL >= 15 (en desarrollo se usa Supabase)
 
 ## Levantar el proyecto
 
 ### 1. Base de datos
 
-```bash
-# Crear la base de datos en PostgreSQL
-psql -U postgres -c "CREATE DATABASE planilla_pagos;"
+La app usa Prisma como ORM. Configurá `DATABASE_URL` en `backend/.env` apuntando a tu instancia de PostgreSQL (por ejemplo, un proyecto de Supabase) y aplicá las migraciones:
 
-# Ejecutar las migraciones
-psql -U postgres -d planilla_pagos -f backend/src/db/migrations.sql
+```bash
+cd backend
+npx prisma migrate deploy
 ```
+
+`backend/src/db/migrations.sql` queda como script de referencia equivalente para instalaciones limpias en Supabase, pero el schema autoritativo es [backend/prisma/schema.prisma](backend/prisma/schema.prisma).
 
 ### 2. Backend
 
@@ -77,7 +78,7 @@ Ver [backend/.env.example](backend/.env.example) para la lista completa.
 
 ## Decisiones de arquitectura
 
-- **Sin ORM**: SQL crudo con `pg` para control total y aprendizaje explícito de las queries.
+- **Prisma como único ORM**: todo el acceso a datos pasa por `src/lib/prisma.js`; `pg` solo se usa internamente para el store de sesiones (`connect-pg-simple`).
 - **Arquitectura en capas**: separación clara entre routing, lógica de negocio y acceso a datos.
 - **Fetch nativo**: sin Axios en el frontend para mantener dependencias mínimas.
 - **Pinia Composition API**: stores como funciones setup para consistencia con Vue 3.
