@@ -22,7 +22,7 @@ We use a layered architecture:
 - **ALL** database access goes through Prisma (`src/lib/prisma.js`)
 - Never use `pg` directly for application queries — Prisma is the source of truth
 - `pg` is only used by `connect-pg-simple` for the session store (infrastructure, not app data)
-- The single connection variable is `DATABASE_URL`; never use the individual `DB_HOST / DB_PORT / DB_NAME / DB_USER / DB_PASSWORD` variables
+- Two connection variables: `DATABASE_URL` (pooled, used by the app at runtime) and `DIRECT_URL` (session-mode pooler, used by Prisma Migrate); never use the individual `DB_HOST / DB_PORT / DB_NAME / DB_USER / DB_PASSWORD` variables
 - Schema lives in `backend/prisma/schema.prisma` — that file is authoritative
 - After any schema change run `prisma migrate dev` (dev) or `prisma migrate deploy` (prod)
 - `src/db/migrations.sql` is a reference script for fresh Supabase installs; keep it in sync with the Prisma schema
