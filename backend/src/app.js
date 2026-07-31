@@ -12,6 +12,7 @@ import clientRouter from "./routes/client.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import sucursalRouter from "./routes/sucursal.routes.js";
 import reportRouter from "./routes/report.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 const secureCookie = process.env.SECURE_COOKIE === "true";
@@ -67,6 +68,7 @@ app.use("/api/payments", paymentRouter);
 app.use("/api/clients", clientRouter);
 app.use("/api/sucursales", sucursalRouter);
 app.use("/api/reports", reportRouter);
+app.use("/api/users", userRouter);
 
 app.use(notFound);
 app.use(errorHandler);

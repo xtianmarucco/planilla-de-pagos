@@ -13,12 +13,18 @@ DO $$ BEGIN
   CREATE TYPE payment_method AS ENUM ('EFECTIVO', 'TRANSFERENCIA', 'OTRO');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
+DO $$ BEGIN
+  CREATE TYPE user_role AS ENUM ('ADMIN', 'USER');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
 -- TABLES
 CREATE TABLE IF NOT EXISTS users (
   id            SERIAL PRIMARY KEY,
   name          TEXT        NOT NULL,
   email         TEXT        NOT NULL UNIQUE,
   password_hash TEXT        NOT NULL,
+  role          user_role   NOT NULL DEFAULT 'USER',
+  is_active     BOOLEAN     NOT NULL DEFAULT TRUE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

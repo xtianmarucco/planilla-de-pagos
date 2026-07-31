@@ -6,5 +6,5 @@ export const findByEmail = (email) =>
 export const findById = (id) =>
   prisma.users.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, created_at: true },
+    select: { id: true, name: true, email: true, role: true, created_at: true },
   });

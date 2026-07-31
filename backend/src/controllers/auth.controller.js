@@ -6,6 +6,7 @@ export const login = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await AuthService.login(email, password);
     req.session.userId = user.id;
+    req.session.role = user.role;
     success(res, user);
   } catch (err) {
     next(err);

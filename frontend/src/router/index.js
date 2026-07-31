@@ -32,6 +32,11 @@ const routes = [
         name: "Resumen",
         component: () => import("@/views/ResumenView.vue"),
       },
+      {
+        path: "users",
+        name: "Users",
+        component: () => import("@/views/UsersView.vue"),
+      },
     ],
   },
 ];
@@ -50,6 +55,10 @@ router.beforeEach(async (to) => {
   }
 
   if (authStore.user && to.name === "Login") {
+    return { name: "Dashboard" };
+  }
+
+  if (to.name === "Users" && authStore.user?.role !== "ADMIN") {
     return { name: "Dashboard" };
   }
 });

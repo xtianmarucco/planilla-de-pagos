@@ -11,7 +11,10 @@ export const login = async (email, password) => {
   if (!valid)
     throw new AppError("Credenciales incorrectas", 401, "UNAUTHORIZED");
 
-  return { id: user.id, name: user.name, email: user.email };
+  if (!user.is_active)
+    throw new AppError("Cuenta deshabilitada", 401, "UNAUTHORIZED");
+
+  return { id: user.id, name: user.name, email: user.email, role: user.role };
 };
 
 export const getById = (id) => AuthRepository.findById(id);

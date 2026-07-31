@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model clients {
@@ -73,12 +74,19 @@ model users {
   password_hash String
   created_at    DateTime?  @default(now()) @db.Timestamp(6)
   name          String     @default("")
+  role          user_role  @default(USER)
+  is_active     Boolean    @default(true)
   payments      payments[]
 }
 
 enum client_type {
   MAYORISTA
   VIABANA
+}
+
+enum user_role {
+  ADMIN
+  USER
 }
 
 enum payment_method {
